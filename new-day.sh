@@ -7,7 +7,7 @@ mkdir $1
 
 cd $1
 
-touch PROMPT.md
+touch README.md
 
 touch prompt-input
 
