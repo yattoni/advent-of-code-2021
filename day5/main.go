@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"strconv"
 	"strings"
 	"unicode"
@@ -57,20 +58,48 @@ func FilterStraightLines(lines []Line) []Line {
 	return straightLines
 }
 
+func FilterDiagonalLines(lines []Line) []Line {
+	diagonalLines := []Line{}
+	for _, line := range lines {
+		if math.Abs(float64(line.start.x-line.end.x)) == math.Abs(float64(line.start.y-line.end.y)) {
+			fmt.Printf("Line is diagonal: %v\n", line)
+			diagonalLines = append(diagonalLines, line)
+		}
+	}
+	return diagonalLines
+}
+
 // Flip line coordinates where the end is farther left or up than the start so draw can traverse each line in the same direction, right and down
 // Assuming 0,0 is top left
 func SortLines(lines []Line) {
 	for i := 0; i < len(lines); i++ {
 		line := lines[i]
 		if line.start.x > line.end.x || line.start.y > line.end.y {
+			fmt.Printf("Flipping line %v\n", line)
 			lines[i] = Line{Coordinate{line.end.x, line.end.y}, Coordinate{line.start.x, line.start.y}}
 		}
 	}
 }
 
-func DrawLines(lines []Line) [][]int {
-	maxX := findMaxX(lines)
-	maxY := findMaxY(lines)
+func DrawLines(straigntLines, diagonalLines []Line) [][]int {
+	maxXStraight := findMaxX(straigntLines)
+	maxYStraight := findMaxY(straigntLines)
+	maxXDiagonal := findMaxX(diagonalLines)
+	maxYDiagonal := findMaxY(diagonalLines)
+
+	maxX := 0
+	if maxXStraight > maxXDiagonal {
+		maxX = maxXStraight
+	} else {
+		maxX = maxXDiagonal
+	}
+
+	maxY := 0
+	if maxYStraight > maxYDiagonal {
+		maxY = maxYStraight
+	} else {
+		maxY = maxYDiagonal
+	}
 
 	lineMap := [][]int{}
 
@@ -81,12 +110,36 @@ func DrawLines(lines []Line) [][]int {
 		}
 	}
 
-	for _, line := range lines {
+	for _, line := range straigntLines {
 		fmt.Printf("line: %v\n", line)
 		for i := line.start.x; i <= line.end.x; i++ {
 			for j := line.start.y; j <= line.end.y; j++ {
 				fmt.Printf("i = %d j = %d\n", i, j)
 				lineMap[j][i] += 1
+			}
+		}
+	}
+
+	for _, line := range diagonalLines {
+		fmt.Printf("diagonal line: %v\n", line)
+		j := line.start.y
+		for i := line.start.x; i <= line.end.x; i++ {
+			fmt.Printf("i = %d j = %d\n", i, j)
+			lineMap[j][i] += 1
+			if line.start.y < line.end.y {
+				j++
+			} else {
+				j--
+			}
+		}
+		j = line.start.y
+		for i := line.start.x; i >= line.end.x; i-- {
+			fmt.Printf("i = %d j = %d\n", i, j)
+			lineMap[j][i] += 1
+			if line.start.y < line.end.y {
+				j++
+			} else {
+				j--
 			}
 		}
 	}
@@ -123,7 +176,32 @@ func findMaxY(lines []Line) int {
 func Solve(lines []Line) int {
 	straightLines := FilterStraightLines(lines)
 	SortLines(straightLines)
-	drawn := DrawLines(straightLines)
+	drawn := DrawLines(straightLines, []Line{})
+
+	pointsGreaterThan2 := 0
+
+	for i := 0; i < len(drawn); i++ {
+		for j := 0; j < len(drawn[i]); j++ {
+			if drawn[i][j] >= 2 {
+				pointsGreaterThan2++
+			}
+		}
+	}
+	return pointsGreaterThan2
+}
+
+func SolvePart2(lines []Line) int {
+	straightLines := FilterStraightLines(lines)
+	diagonalLines := FilterDiagonalLines(lines)
+
+	SortLines(straightLines)
+	SortLines(diagonalLines)
+
+	drawn := DrawLines(straightLines, diagonalLines)
+
+	for _, d := range drawn {
+		fmt.Println(d)
+	}
 
 	pointsGreaterThan2 := 0
 

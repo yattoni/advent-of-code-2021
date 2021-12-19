@@ -24,7 +24,7 @@ func TestDrawLines(t *testing.T) {
 	lines := ReadFileToLines("prompt-input")
 	straightLines := FilterStraightLines(lines)
 	SortLines(straightLines)
-	drawn := DrawLines(straightLines)
+	drawn := DrawLines(straightLines, []Line{})
 	for _, d := range drawn {
 		fmt.Println(d)
 	}
@@ -39,4 +39,14 @@ func TestSolvePromptInput(t *testing.T) {
 func TestSolveInput(t *testing.T) {
 	lines := ReadFileToLines("input")
 	assert.Equal(t, 5147, Solve(lines))
+}
+
+func TestSolvePart2PromptInput(t *testing.T) {
+	lines := ReadFileToLines("prompt-input")
+	assert.Equal(t, 12, SolvePart2(lines))
+}
+
+func TestSolvePart2(t *testing.T) {
+	lines := ReadFileToLines("input")
+	assert.Equal(t, 16925, SolvePart2(lines))
 }
