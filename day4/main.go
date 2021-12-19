@@ -18,12 +18,15 @@ type BingoBoard struct {
 	// store numbers how we need to query them to make life easier
 	rows    []BingoSquares
 	columns []BingoSquares
+	won     bool
 }
 
 type BingoSquare struct {
 	number int
 	marked bool
 }
+
+type WinnerFinder func(*BingoGame) *BingoBoard
 
 // https://stackoverflow.com/questions/54302129/how-to-print-the-slice-of-pointers-to-get-the-values-instead-of-their-address-wi
 type BingoSquares []*BingoSquare
@@ -57,6 +60,7 @@ func ReadFileToBingoGame(fileName string) *BingoGame {
 	boards := []*BingoBoard{}
 	for i := 1; i < len(fileFields); i += 25 {
 		board := &BingoBoard{}
+		board.won = false
 		board.rows = []BingoSquares{}
 		for j := i; j < i+25; j += 5 {
 			n, _ := strconv.Atoi(fileFields[j])
@@ -101,13 +105,13 @@ func PlayOneTurnOneBoard(number int, board *BingoBoard) {
 func IsBoardWinner(board *BingoBoard) bool {
 	for _, row := range board.rows {
 		if allSquaresMarked(row) {
-			fmt.Printf("Row %v is a winner", row)
+			fmt.Printf("Row %v is a winner\n", row)
 			return true
 		}
 	}
 	for _, column := range board.columns {
 		if allSquaresMarked(column) {
-			fmt.Printf("Column %v is a winner", column)
+			fmt.Printf("Column %v is a winner\n", column)
 			return true
 		}
 	}
@@ -128,17 +132,27 @@ func FindFirstWinningBoard(game *BingoGame) *BingoBoard {
 	return nil
 }
 
-func allSquaresMarked(squares []*BingoSquare) bool {
-	for i := 0; i < len(squares); i++ {
-		if !squares[i].marked {
-			return false
+func FindLastWinningBoard(game *BingoGame) *BingoBoard {
+	winnersSoFar := 0
+	for _, number := range game.randomNumbers {
+		for j, board := range game.boards {
+			fmt.Printf("Playing number %d on board %d\n", number, j)
+			PlayOneTurnOneBoard(number, board)
+			if IsBoardWinner(board) && !board.won {
+				winnersSoFar++
+				board.won = true
+				if winnersSoFar == len(game.boards) {
+					game.winningNumber = number
+					return board
+				}
+			}
 		}
 	}
-	return true
+	return nil
 }
 
-func Solve(game *BingoGame) int {
-	winner := FindFirstWinningBoard(game)
+func Solve(game *BingoGame, finder WinnerFinder) int {
+	winner := finder(game)
 
 	sumUnmarkedSquares := 0
 
@@ -151,4 +165,13 @@ func Solve(game *BingoGame) int {
 	}
 
 	return sumUnmarkedSquares * game.winningNumber
+}
+
+func allSquaresMarked(squares []*BingoSquare) bool {
+	for i := 0; i < len(squares); i++ {
+		if !squares[i].marked {
+			return false
+		}
+	}
+	return true
 }

@@ -71,10 +71,20 @@ func TestFindFirstWinningBoard(t *testing.T) {
 
 func TestSolvePromptInput(t *testing.T) {
 	game := ReadFileToBingoGame("prompt-input")
-	assert.Equal(t, 4512, Solve(game))
+	assert.Equal(t, 4512, Solve(game, FindFirstWinningBoard))
 }
 
 func TestSolve(t *testing.T) {
 	game := ReadFileToBingoGame("input")
-	assert.Equal(t, 54275, Solve(game))
+	assert.Equal(t, 54275, Solve(game, FindFirstWinningBoard))
+}
+
+func TestSolvePart2PromptInput(t *testing.T) {
+	game := ReadFileToBingoGame("prompt-input")
+	assert.Equal(t, 1924, Solve(game, FindLastWinningBoard))
+}
+
+func TestSolvePart2(t *testing.T) {
+	game := ReadFileToBingoGame("input")
+	assert.Equal(t, 13158, Solve(game, FindLastWinningBoard))
 }
