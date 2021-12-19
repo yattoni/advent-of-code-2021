@@ -94,10 +94,10 @@ func TestSolvePart2(t *testing.T) {
 	oxygen := SolveOxygenRating(input, 12)
 	co2 := SolveCO2Rating(input, 12)
 
-	assert.Equal(t, uint16(0x3a3), oxygen) // 943
-	assert.Equal(t, uint16(0xe22), co2)    // 3152
+	assert.Equal(t, uint16(0x3a3), oxygen)
+	assert.Equal(t, uint16(0xe22), co2)
 
-	assert.Equal(t, 3368358, int(oxygen)*int(co2)) // 2972336
+	assert.Equal(t, 3368358, int(oxygen)*int(co2))
 
 }
 
@@ -113,5 +113,5 @@ func TestFilterNumbersWithMostCommonBitSet(t *testing.T) {
 		0b10000,
 		0b11001,
 	}
-	assert.Equal(t, ints, FilterNumbersWithMostCommonBitSet(input, uint16(0b10000)))
+	assert.Equal(t, ints, FilterNumbersWithBitSet(input, uint16(0b10000), func(f1, f2 float64) bool { return f1 >= f2 }))
 }
