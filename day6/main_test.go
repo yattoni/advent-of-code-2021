@@ -64,3 +64,9 @@ func TestSolvePart2(t *testing.T) {
 
 	assert.Equal(t, 1682576647495, Solve(fish, 256, RunOneEfficientDay, CountEfficientFish))
 }
+
+func TestSolvePart2MoreEfficient(t *testing.T) {
+	fish := ReadFileToEfficientFish("input")
+
+	assert.Equal(t, 1682576647495, Solve(fish, 256, RunOneMoreEfficientDay, CountEfficientFish))
+}

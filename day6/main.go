@@ -6,6 +6,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -69,6 +70,7 @@ func RunOneDay(fish []int) []int {
 	return fish
 }
 
+// Runs in ~30 microseconds
 func RunOneEfficientDay(fish []int) []int {
 	newFish := []int{0, 0, 0, 0, 0, 0, 0, 0, 0}
 
@@ -84,12 +86,22 @@ func RunOneEfficientDay(fish []int) []int {
 	return newFish
 }
 
+// Runs in <10us (microseconds)
+func RunOneMoreEfficientDay(fish []int) []int {
+	// pop start of slice to end
+	newFish := append(fish[1:], fish[0])
+	newFish[6] += newFish[8]
+	return newFish
+}
+
 func Solve(initialFish []int, days int, runDay DayRunnerFunc, counter FishCounterFunc) int {
 	currentFish := initialFish
+	start := time.Now()
 	for i := 0; i < days; i++ {
-		log.Printf("Running day: %d. Current length of fish: %d\n", i, len(currentFish))
+		// log.Printf("Running day: %d. Current length of fish: %d\n", i, len(currentFish))
 		currentFish = runDay(currentFish)
 	}
+	fmt.Println(time.Since(start))
 	// log.Printf("Final Fish: %v\n", currentFish)
 	return counter(currentFish)
 }
