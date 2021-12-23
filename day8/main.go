@@ -50,49 +50,25 @@ func ReadFile(fileName string) []Line {
 }
 
 func GetWiresForOne(wires []string) string {
-	for _, wire := range wires {
-		if len(wire) == 2 {
-			return wire
-		}
-	}
-	log.Fatalf("Could not find one in %v", wires)
-	return ""
+	return getFirstStringOfLength(wires, 2)
 }
 
 func GetWiresForFour(wires []string) string {
-	for _, wire := range wires {
-		if len(wire) == 4 {
-			return wire
-		}
-	}
-	log.Fatalf("Could not find four in %v", wires)
-	return ""
+	return getFirstStringOfLength(wires, 4)
 }
 
 func GetWiresForSeven(wires []string) string {
-	for _, wire := range wires {
-		if len(wire) == 3 {
-			return wire
-		}
-	}
-	log.Fatalf("Could not find seven in %v", wires)
-	return ""
+	return getFirstStringOfLength(wires, 3)
 }
 
 func GetWiresForEight(wires []string) string {
-	for _, wire := range wires {
-		if len(wire) == 7 {
-			return wire
-		}
-	}
-	log.Fatalf("Could not find eight in %v", wires)
-	return ""
+	return getFirstStringOfLength(wires, 7)
 }
 
 func GetWiresForThree(wires []string) string {
 	wiresForOne := GetWiresForOne(wires)
 	for _, wire := range wires {
-		if len(wire) == 5 && strings.Contains(wire, string(wiresForOne[0])) && strings.Contains(wire, string(wiresForOne[1])) {
+		if len(wire) == 5 && stringContainsAllLetters(wire, wiresForOne) {
 			return wire
 		}
 	}
@@ -103,20 +79,10 @@ func GetWiresForThree(wires []string) string {
 func GetWiresForFive(wires []string) string {
 	wiresForOne := GetWiresForOne(wires)
 	wiresForFour := GetWiresForFour(wires)
-
-	log.Printf("Wires in one: %s, wires in four: %s", wiresForOne, wiresForFour)
-
-	wiresInFourNotOne := []string{}
-	for _, w := range strings.Split(wiresForFour, "") {
-		if !strings.Contains(wiresForOne, w) {
-			wiresInFourNotOne = append(wiresInFourNotOne, w)
-		}
-	}
-
-	log.Printf("Wires in four not one: %v", wiresInFourNotOne)
+	wiresInFourNotOne := stringNotInSuperString(wiresForFour, wiresForOne)
 
 	for _, wire := range wires {
-		if len(wire) == 5 && strings.Contains(wire, string(wiresInFourNotOne[0])) && strings.Contains(wire, string(wiresInFourNotOne[1])) {
+		if len(wire) == 5 && stringContainsAllLetters(wire, wiresInFourNotOne) {
 			log.Printf("Wires in five: %v", wire)
 			return wire
 		}
@@ -141,23 +107,11 @@ func GetWiresForSix(wires []string) string {
 	wiresForOne := GetWiresForOne(wires)
 	wiresForFour := GetWiresForFour(wires)
 	wiresForNine := GetWiresForNine(wires)
-
-	log.Printf("six: Wires in one: %s, wires in four: %s", wiresForOne, wiresForFour)
-
-	wiresInFourNotOne := []string{}
-	for _, w := range strings.Split(wiresForFour, "") {
-		if !strings.Contains(wiresForOne, w) {
-			wiresInFourNotOne = append(wiresInFourNotOne, w)
-		}
-	}
-
-	log.Printf("six: Wires in four not one: %v", wiresInFourNotOne)
+	wiresInFourNotOne := stringNotInSuperString(wiresForFour, wiresForOne)
 
 	for _, wire := range wires {
 		if len(wire) == 6 &&
-			strings.Contains(wire, string(wiresInFourNotOne[0])) &&
-			strings.Contains(wire, string(wiresInFourNotOne[1])) &&
-			wire != wiresForNine {
+			stringContainsAllLetters(wire, wiresInFourNotOne) && wire != wiresForNine {
 			log.Printf("six: Wires in six: %v", wire)
 			return wire
 		}
@@ -169,11 +123,7 @@ func GetWiresForSix(wires []string) string {
 func GetWiresForNine(wires []string) string {
 	wiresForFour := GetWiresForFour(wires)
 	for _, wire := range wires {
-		if len(wire) == 6 &&
-			strings.Contains(wire, string(wiresForFour[0])) &&
-			strings.Contains(wire, string(wiresForFour[1])) &&
-			strings.Contains(wire, string(wiresForFour[2])) &&
-			strings.Contains(wire, string(wiresForFour[3])) {
+		if len(wire) == 6 && stringContainsAllLetters(wire, wiresForFour) {
 			return wire
 		}
 	}
@@ -237,12 +187,6 @@ func DecodeLine(line Line) int {
 	return resultNum
 }
 
-func sortString(w string) string {
-	s := strings.Split(w, "")
-	sort.Strings(s)
-	return strings.Join(s, "")
-}
-
 func Solve(lines []Line) int {
 	sum := 0
 	for _, line := range lines {
@@ -261,4 +205,38 @@ func SolvePart2(lines []Line) int {
 		sum += DecodeLine(line)
 	}
 	return sum
+}
+
+func getFirstStringOfLength(strings []string, length int) string {
+	for _, str := range strings {
+		if len(str) == length {
+			return str
+		}
+	}
+	return ""
+}
+
+func stringContainsAllLetters(s, substr string) bool {
+	for _, char := range substr {
+		if !strings.Contains(s, string(char)) {
+			return false
+		}
+	}
+	return true
+}
+
+func stringNotInSuperString(superString, subString string) string {
+	chars := []string{}
+	for _, w := range strings.Split(superString, "") {
+		if !strings.Contains(subString, w) {
+			chars = append(chars, w)
+		}
+	}
+	return strings.Join(chars, "")
+}
+
+func sortString(w string) string {
+	s := strings.Split(w, "")
+	sort.Strings(s)
+	return strings.Join(s, "")
 }
